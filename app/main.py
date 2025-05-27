@@ -18,7 +18,7 @@ def get_application():
         title="FastAPI MVC App",
         description="A web application following MVC pattern with FastAPI.",
         version="1.0.0",
-        docs_url="/"
+        docs_url="/",
     )
 
     # Setup CORS
