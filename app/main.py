@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import settings
 from app.database import Base
 from app.database.session import engine
 from app.routes import auth, posts
@@ -21,7 +20,6 @@ def get_application():
         docs_url="/",
     )
 
-    # Setup CORS
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -30,11 +28,9 @@ def get_application():
         allow_headers=["*"],
     )
 
-    # Include routers
     app.include_router(auth.router)
     app.include_router(posts.router)
 
-    # Create tables on startup
     @app.on_event("startup")
     async def startup():
         create_tables()

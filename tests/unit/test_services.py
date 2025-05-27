@@ -1,10 +1,11 @@
-from datetime import timedelta
-from unittest.mock import MagicMock, patch
+import pytest
+from unittest.mock import MagicMock
 
 import pytest
 from sqlalchemy.orm import Session
 
 from app.database.models import Post, User
+from app.schemas.auth import UserCreate
 from app.services.auth import AuthService
 from app.services.cache import CacheService
 from app.services.posts import PostService
@@ -67,29 +68,21 @@ class TestAuthService:
                 mock_db, "test@example.com", "password"
             )
 
-    def test_create_user_success(self, mock_db):
-        mock_db.query.return_value.filter.return_value.first.return_value = (
-            None
-        )
-        user_data = {
-            "email": "new@example.com",
-            "password": "SecurePass123!",
-        }
-
+    def test_create_user_success(self):
+        mock_db = MagicMock()
+        mock_db.query.return_value.filter.return_value.first.return_value = None
+        user_data = UserCreate(email="new@example.com", password="SecurePass123!")
+        
         user = AuthService.create_user(mock_db, user_data)
         assert mock_db.add.called
         assert mock_db.commit.called
         assert isinstance(user, User)
 
-    def test_create_user_exists(self, mock_db):
-        mock_db.query.return_value.filter.return_value.first.return_value = (
-            User()
-        )
-        user_data = {
-            "email": "exists@example.com",
-            "password": "SecurePass123!",
-        }
-
+    def test_create_user_exists(self):
+        mock_db = MagicMock()
+        mock_db.query.return_value.filter.return_value.first.return_value = User()
+        user_data = UserCreate(email="exists@example.com", password="SecurePass123!")
+        
         with pytest.raises(UserAlreadyExistsError):
             AuthService.create_user(mock_db, user_data)
 
